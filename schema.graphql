@@ -54,6 +54,7 @@ type Pool @storage(postgres: true, clickhouse: true) {
   feeTier: BigInt!
   liquidity: BigInt!
   sqrtPrice: BigInt!
+  sqrtPriceX96: BigInt!
   token0Price: BigDecimal!
   token1Price: BigDecimal!
   tick: BigInt
@@ -98,6 +99,7 @@ type Token @storage(postgres: true, clickhouse: true) {
   chainId: BigInt!
   symbol: String!
   name: String!
+  address: String!
   decimals: BigInt!
   totalSupply: BigInt!
   volume: BigDecimal!
@@ -138,7 +140,12 @@ type Position @storage(postgres: true, clickhouse: true) {
   tokenId: BigInt! @index
   owner: String! @index # address of current owner
   origin: String! # the EOA that minted the position
+  poolId: String!
+  tickLower: Int!
+  tickUpper: Int!
+  liquidity: BigInt!
   createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
   # derived fields
   subscriptions: [Subscribe!]! @derivedFrom(field: "position")
   unsubscriptions: [Unsubscribe!]! @derivedFrom(field: "position")
@@ -202,4 +209,12 @@ type ModifyLiquidity
   tickLower: BigInt! # lower tick of the position
   tickUpper: BigInt! # upper tick of the position
   logIndex: BigInt! # index within the txn
+}
+
+type TxModifyLiquidityTemp @storage(postgres: true, clickhouse: true) {
+  id: ID! # transaction hash
+  poolId: String!
+  tickLower: Int!
+  tickUpper: Int!
+  liquidity: BigInt!
 }

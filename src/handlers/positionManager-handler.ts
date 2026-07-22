@@ -24,14 +24,38 @@ indexer.onEvent(
 
     // Mint (from == zero address) creates the position; later transfers only
     // change ownership
-    const position = (await context.Position.get(id)) ?? {
-      id,
-      chainId: BigInt(event.chainId),
-      tokenId: event.params.id,
-      owner: event.params.to,
-      origin: event.transaction.from || "NONE",
-      createdAtTimestamp: BigInt(event.block.timestamp),
-    };
+    let position = await context.Position.get(id);
+
+    if (!position) {
+      let poolId = "";
+      let tickLower = 0;
+      let tickUpper = 0;
+      let liquidity = 0n;
+
+      if (event.params.from === "0x0000000000000000000000000000000000000000") {
+        const temp = await context.TxModifyLiquidityTemp.get(event.transaction.hash);
+        if (temp) {
+          poolId = temp.poolId;
+          tickLower = temp.tickLower;
+          tickUpper = temp.tickUpper;
+          liquidity = temp.liquidity;
+        }
+      }
+
+      position = {
+        id,
+        chainId: BigInt(event.chainId),
+        tokenId: event.params.id,
+        owner: event.params.to,
+        origin: event.transaction.from || "NONE",
+        poolId,
+        tickLower,
+        tickUpper,
+        liquidity,
+        createdAtTimestamp: BigInt(event.block.timestamp),
+        createdAtBlockNumber: BigInt(event.block.number),
+      };
+    }
 
     context.Position.set({ ...position, owner: event.params.to });
 

@@ -236,6 +236,14 @@ indexer.onEvent({ contract: "PoolManager", event: "ModifyLiquidity" }, async ({ 
     });
   }
 
+  context.TxModifyLiquidityTemp.set({
+    id: event.transaction.hash,
+    poolId: pool.id,
+    tickLower: Number(event.params.tickLower),
+    tickUpper: Number(event.params.tickUpper),
+    liquidity: event.params.liquidityDelta,
+  });
+
   context.ModifyLiquidity.set(modifyLiquidity);
   context.PoolManager.set(poolManager);
   context.Pool.set(pool);
