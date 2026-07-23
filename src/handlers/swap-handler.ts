@@ -1,7 +1,7 @@
 /*
  * Swap event handlers for Uniswap v4 pools
  */
-import { indexer, BigDecimal, type Swap } from "envio";
+import { indexer, BigDecimal } from "envio";
 import { getChainConfig } from "../utils/chains";
 import { convertTokenToDecimal } from "../utils";
 import { getTrackedAmountUSD, getNativePriceInUSD } from "../utils/pricing";
@@ -242,29 +242,6 @@ indexer.onEvent({ contract: "PoolManager", event: "Swap" }, async ({ event, cont
     ),
   };
 
-  // Use for USD swap amount
-  const finalAmountUSD = amountTotalUSDTracked.gt(new BigDecimal("0"))
-    ? amountTotalUSDTracked
-    : amountTotalUSDUntracked;
-
-  let entity: Swap = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    chainId: BigInt(event.chainId),
-    transaction: event.transaction.hash,
-    timestamp: BigInt(event.block.timestamp),
-    pool: `${event.chainId}_${event.params.id}`,
-    token0_id: token0.id,
-    token1_id: token1.id,
-    sender: event.params.sender,
-    origin: event.transaction.from || "NONE",
-    amount0: amount0,
-    amount1: amount1,
-    amountUSD: sanitizeBD(finalAmountUSD),
-    sqrtPriceX96: event.params.sqrtPriceX96,
-    tick: event.params.tick,
-    logIndex: BigInt(event.logIndex),
-    fee: BigInt(event.params.fee),
-  };
   // Use immutability pattern
   context.Bundle.set({
     ...bundle,
@@ -272,7 +249,6 @@ indexer.onEvent({ contract: "PoolManager", event: "Swap" }, async ({ event, cont
   });
   context.Pool.set(pool);
   context.PoolManager.set(poolManager);
-  context.Swap.set(entity);
   context.Token.set(token0);
   context.Token.set(token1);
 

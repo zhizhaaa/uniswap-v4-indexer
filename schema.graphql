@@ -1,27 +1,3 @@
-type Swap
-  @storage(postgres: true)
-  @index(fields: ["timestamp", "pool"])
-  @index(fields: ["amountUSD", "pool"]) {
-  id: ID!
-  chainId: BigInt!
-  transaction: String! # Instead of Transaction reference
-  timestamp: BigInt! @index
-  pool: String! # Instead of Pool reference
-  token0: Token! # Changed from String to Token reference
-  token1: Token! # Changed from String to Token reference
-  sender: String! # Instead of Bytes
-  origin: String! # Instead of Bytes
-  amount0: BigDecimal!
-  amount1: BigDecimal!
-  amountUSD: BigDecimal!
-  sqrtPriceX96: BigInt!
-  tick: BigInt!
-  logIndex: BigInt!
-  # Fee paid for this swap in hundredths of a bip (i.e. raw PoolManager Swap.fee).
-  # For dynamic-fee pools this captures the per-swap effective fee, which would
-  # otherwise be lost when pool.feeTier is overwritten by the next swap.
-  fee: BigInt!
-}
 
 type PoolManager @storage(postgres: true) {
   id: ID!
